@@ -1,6 +1,5 @@
 mod server;
 mod http;
-
 use server::Server;
 
 fn main() -> std::io::Result<()> {

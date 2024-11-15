@@ -1,5 +1,5 @@
 use std::io;
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpListener;
 use std::thread;
 use crate::http::request_handler::handle_client;
 
