@@ -1,39 +1,37 @@
 use std::io;
 use std::net::TcpListener;
-use std::thread;
-use crate::http::request_handler::handle_client;
+use crate::http::request::RequestHandler;
 
 pub struct Server {
     address: String,
+    handler: RequestHandler,
 }
 
-
 impl Server {
-    pub fn new(address:&str) -> Server {
+    pub fn new(address: &str, public_dir: &str) -> Self {
         Server {
-            address: address.to_string()
+            address: address.to_string(),
+            handler: RequestHandler::new(public_dir),
         }
     }
 
     pub fn run(&self) -> io::Result<()> {
         let listener = TcpListener::bind(&self.address)?;
+        println!("Server running on {}", self.address);
 
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => {
-                    thread::spawn(|| {
-                        if let Err(e) = handle_client(stream) {
-                            eprintln!("Error handling client: {}", e);
-                        }
-                    });
+                    if let Err(e) = self.handler.handle_client(stream) {
+                        eprintln!("Error handling client: {}", e);
+                    }
                 }
                 Err(e) => {
-                    eprintln!("Connection failed: {}", e);
+                    eprintln!("Error accepting connection: {}", e);
                 }
-
             }
         }
-         
+
         Ok(())
     }
 }
